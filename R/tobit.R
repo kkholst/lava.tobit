@@ -376,7 +376,7 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
 
 ## Calculates first and second order partial derivatives of normal CDF
 ## w.r.t. parameter-vector!
-Dthetapmvnorm <- function(yy,mu,S,dmu,dS,seed=lava.options()$tobitseed,
+thetapmvnorm <- function(yy,mu,S,dmu,dS,seed=lava.options()$tobitseed,
                           algorithm=lava.options()$tobitAlgorithm, weight,
                           ...) {
   if (!is.null(seed)) {
