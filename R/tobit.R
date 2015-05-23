@@ -21,7 +21,6 @@ tobit_objective.lvm <- function(x,p,data,weight,indiv=FALSE,
   yy.w <- intersect(yy,colnames(weight))
   yy.idx <- match(yy.w,zz)
   Status <- matrix(0,ncol=length(zz),nrow=nrow(d))
-
   Status[,yy.idx]<- as.matrix(weight)[,yy.w,drop=FALSE]
   patterns <- unique(Status,MARGIN=1)
   cens.type <- apply(Status,1,
@@ -59,11 +58,12 @@ tobit_objective.lvm <- function(x,p,data,weight,indiv=FALSE,
       ##  L[cens.which.left,cens.which.left] <- (-1)
       if (length(noncens.y)==0) {
         ##        suppressMessages(browser())
-        low <- L%*%t(d[idx,cens.idx,drop=FALSE])-as.numeric(L%*%xi)
+          low <- L%*%t(d[idx,cens.idx,drop=FALSE])-as.numeric(L%*%xi)
+          ##lower=as.numeric(L%*%d[ii,cens.idx]),
         val0 <- sapply(idx,
                             function(ii)
-                            log(pmvnorm(lower=,
-                                                     mean=as.numeric(L%*%xi),
+                            log(pmvnorm(lower=low,
+                                        mean=as.numeric(L%*%xi),
                                         sigma=L%*%Sigma%*%L,algorithm=algorithm))
                        )
 
@@ -107,15 +107,23 @@ tobit_gradient.lvm <- function(x,p,data,weight,weight2=NULL,indiv=FALSE,
   yy.idx <- match(yy.w,zz)
   Status <- matrix(0,ncol=length(zz),nrow=nrow(d))
   Status[,yy.idx]<- as.matrix(weight)[,yy.w,drop=FALSE]
-
+  if (is.vector(weight2)) weight2 <- cbind(weight2)
   W0 <- weight2
   if (!is.null(W0)) {
-    yy.w2 <- intersect(yy,colnames(weight2))
-    yy.idx2 <- match(yy.w2,zz)    
-    W0 <- matrix(1,ncol=length(zz),nrow=nrow(d))
-    W0[,yy.idx2] <- weight2[,yy.w2,drop=FALSE]
-    colnames(W0) <- zz
+      yy.w2 <- intersect(yy,colnames(weight2))
+      yy.idx2 <- match(yy.w2,zz)
+      W0 <- matrix(1,ncol=length(zz),nrow=nrow(d))           
+      if (length(yy.idx2)==0) {
+          if (ncol(weight2)==ncol(W0)) W0 <- weight2
+          else {
+              for (i in seq(ncol(W0))) W0[,i] <- weight2[,1]
+          }
+      } else {
+          W0[,yy.idx2] <- weight2[,yy.w2,drop=FALSE]
+      }
+      colnames(W0) <- zz
   }
+
 ##  yy <- endogenous(x)
 ##  yy.idx <- match(yy,zz)
 ##  Status <- matrix(0,ncol=length(zz),nrow=nrow(d))
@@ -157,7 +165,7 @@ tobit_gradient.lvm <- function(x,p,data,weight,weight2=NULL,indiv=FALSE,
     ##    dummy <- cens.score(x,p,data=y,cens.idx=cens.idx, cens.which.left=cens.which.left)
     ##    score <- rbind(score,dummy)
   }
-
+  
   if (!is.null(seed))
     .Random.seed <<- save.seed
   if (indiv)
@@ -376,7 +384,7 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
 
 ## Calculates first and second order partial derivatives of normal CDF
 ## w.r.t. parameter-vector!
-thetapmvnorm <- function(yy,mu,S,dmu,dS,seed=lava.options()$tobitseed,
+Dthetapmvnorm <- function(yy,mu,S,dmu,dS,seed=lava.options()$tobitseed,
                           algorithm=lava.options()$tobitAlgorithm, weight,
                           ...) {
   if (!is.null(seed)) {
