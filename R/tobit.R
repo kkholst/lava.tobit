@@ -58,11 +58,11 @@ tobit_objective.lvm <- function(x,p,data,weight,indiv=FALSE,
       ##  L[cens.which.left,cens.which.left] <- (-1)
       if (length(noncens.y)==0) {
         ##        suppressMessages(browser())
-          low <- L%*%t(d[idx,cens.idx,drop=FALSE])-as.numeric(L%*%xi)
+          ##low <- L%*%t(d[idx,cens.idx,drop=FALSE])-as.numeric(L%*%xi)
           ##lower=as.numeric(L%*%d[ii,cens.idx]),
         val0 <- sapply(idx,
                             function(ii)
-                            log(pmvnorm(lower=low,
+                            log(pmvnorm(lower=as.numeric(L%*%d[ii,cens.idx]),
                                         mean=as.numeric(L%*%xi),
                                         sigma=L%*%Sigma%*%L,algorithm=algorithm))
                        )
