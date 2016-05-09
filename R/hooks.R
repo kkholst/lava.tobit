@@ -73,8 +73,14 @@ lava.tobit.estimate.hook <- function(x,data,weight,weight2,estimator,...) {
         if (attributes(S)$type=="interval2") {
           y2 <- S[,2]
         }
-        if (!(attributes(S)$type%in%c("left","right","interval2"))) stop("Surv type not supported.")
+        if (attributes(S)$type=="interval") {
+            y2 <- S[,2]
+            y2[S[,3]==1L] <- y1[S[,3]==1L]
+        }
+        if (!(attributes(S)$type%in%c("left","right","interval2","interval"))) stop("Surv type not supported.")
         mynames <- c(mynames,i)
+        y2 <- cbind(y2)
+        colnames(y2) <- i
         weight2 <- cbind(weight2,y2)
         data[,i] <- y1
       }

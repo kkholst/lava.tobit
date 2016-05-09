@@ -292,8 +292,8 @@ cens.score <- function(x,p,data,cens.idx,cens.which.left,weight,...) {
                                1/2*as.vector((iS-iS%*%tcrossprod(u)%*%iS)%*%W)%*%dS))
       } else {      
         S1 <- rbind(S1,
-                    as.numeric(part0 + crossprod(u,iS)%*%dmu +
-                               1/2*as.vector(iS%*%tcrossprod(u)%*%iS)%*%dS))
+                    as.numeric(part0 + crossprod(as.vector(u),iS)%*%dmu +
+                               1/2*as.vector(iS%*%tcrossprod(as.vector(u))%*%iS)%*%dS))
       }
     }
   } else S1 <- 0
@@ -344,7 +344,7 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
 ##    tcrossprod(S[-j,j,drop=FALSE])
     Sj <- S[-j,-j,drop=FALSE] - tcrossprod(S[-j,j,drop=FALSE]) ##/S[j,j] S=correlation
     muj <- Y[-j] - S[-j,j,drop=FALSE]*Y[j]
-#    set.seed(seed)
+                                        #    set.seed(seed)
     D[j] <- dnorm(Y[j])*pmvnorm(upper=as.vector(muj),sigma=Sj,algorithm=algorithm)
   }
 
@@ -355,7 +355,6 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
     diag(H) <- -Y*D -H[1,2]*S[1,2]
     ##as.vector((H*S)%*%rep(1,k))
   } else {
-    ##    H[] <- 0
     phis <- Phis <- H
     for (i in 1:(k-1)) {
       for (j in (i+1):k) {
@@ -363,13 +362,12 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
         B <- Snij%*%Inverse(S[c(i,j),c(i,j)])
         Sij <- S[-c(i,j),-c(i,j),drop=FALSE] - B%*%t(Snij)
         muij <- Y[-c(i,j)] - B%*%Y[c(i,j)]
-#        set.seed(seed)
         Phis[i,j] <- Phis[j,i] <- pmvnorm(upper=as.vector(muij),sigma=Sij,algorithm=algorithm)
         phis[i,j] <- phis[j,i] <- dmvnorm(Y[c(i,j)],sigma=S[c(i,j),c(i,j)])
       }
     }
     H <- Phis*phis
-    diag(H) <- -Y*D - as.vector((S*H)%*%rep(1,k))    
+    diag(H) <- -Y*D - as.vector((S*H)%*%rep(1,k))
   }
   if (!std) {
     if (!is.null(seed))
