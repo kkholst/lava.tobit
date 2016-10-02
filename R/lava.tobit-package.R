@@ -12,9 +12,10 @@
 ##' @aliases lava.tobit lava.tobit-package
 ##' @docType package
 ##' @author Klaus K. Holst Maintainer: <kkho@@biostat.ku.dk>
+##' @import lava mvtnorm survival
 ##' @keywords package
 ##' @examples
-##' 
+##'
 ##' m <- lvm(list(c(y,z) ~ x, y~z))
 ##' ## Simulate 200 observation from path analysis model
 ##' ## with all slopes and residual variances set to 1 and intercepts 0:

@@ -17,59 +17,58 @@
 ##'
 ##'\dontrun{
 ##'
-##'## Simulate data where (y01,y2)
-##'## follows conditional bivariate normal distribution
-##'## given covariate x. Instead of y01 we observe
-##'## right censored version y2
-##'n <- 200
-##'m <- lvm(c(y01,y2) ~ x)
-##'covariance(m) <- y01~y2
-##'set.seed(1)
-##'d <- sim(m,n)
-##'d$cens1 <- rexp(n)
-##'d$status1 <- with(d,y01<cens1)
-##'d$y1 <- with(d, pmin(y01,cens1))
+##' ## Simulate data where (y01,y2)
+##' ## follows conditional bivariate normal distribution
+##' ## given covariate x. Instead of y01 we observe
+##' ## right censored version y2
+##' n <- 200
+##' m <- lvm(c(y01,y2) ~ x)
+##' covariance(m) <- y01~y2
+##' set.seed(1)
+##' d <- sim(m,n)
+##' d$cens1 <- rexp(n)
+##' d$status1 <- with(d,y01<cens1)
+##' d$y1 <- with(d, pmin(y01,cens1))
 ##'
-##'## Estimate model parameters
-##'d$S1 <- with(d, Surv(y1,status1))
-##'m <- lvm(c(S1,y2)~x); covariance(m) <- S1~y2
-##'e <- estimate(m,d,control=list(trace=1))
+##' ## Estimate model parameters
+##' d$S1 <- with(d, Surv(y1,status1))
+##' m <- lvm(c(S1,y2)~x); covariance(m) <- S1~y2
+##' e <- estimate(m,d,control=list(trace=1))
 ##'
-##'## Plot cumulative distribution functions
-##'par(mfrow=c(2,2)); plotres(e); plot(e)
+##' ## Plot cumulative distribution functions
+##' par(mfrow=c(2,2)); plotres(e); plot(e)
 ##'}
 ##'
 ##' @export
-plotres <- function(x,var=endogenous(x),
+plotres <- function(x,var=lava::endogenous(x),
                     ylab="Cumulative Distribution Function",
                     xlab="Standardized residuals",
                     main,
                     k,
-                    ...) {
-  require(survival)
-  r <- residuals(x,std=TRUE)
-  W <- Weight(x)
-  if (inherits(x,"multigroupfit")) {
-    if (missing(k)) stop("Specify which group to assess.")
-    r <- r[[k]]; W <- W[[k]]
-  }
-  
-  for (v in var) {
-    if (v %in% (W)) {
-      S <- Surv(ifelse(W[,v]==-1,NA,r[,v]),
-                ifelse(W[,v]==1,NA,r[,v]),
-                type="interval2")      
-    } else {
-      S <- Surv(r[,v],rep(TRUE,length(r[,v])))
+            ...) {
+    requireNamespace("survival")
+    r <- stats::residuals(x,std=TRUE)
+    W <- lava::Weight(x)
+    if (inherits(x,"multigroupfit")) {
+        if (missing(k)) stop("Specify which group to assess.")
+        r <- r[[k]]; W <- W[[k]]
     }
-    g <- survfit(S~1)
-    mymain <- ifelse(!missing(main),main,v)    
-    with(g,plot(1-surv~time,type="s",main=mymain,xlab=xlab,ylab=ylab))
-    with(g,lines(1-upper~time,type="s",lty=2))
-    with(g,lines(1-lower~time,type="s",lty=2))
-    ro <- sort(r[,v]); 
-    lines(ro,pnorm(ro),col="red",xlab=xlab,ylab=ylab)
     
-   }
+    for (v in var) {
+        if (v %in% (W)) {
+            S <- survival::Surv(ifelse(W[,v]==-1,NA,r[,v]),
+                     ifelse(W[,v]==1,NA,r[,v]),
+                     type="interval2")      
+        } else {
+            S <- survival::Surv(r[,v],rep(TRUE,length(r[,v])))
+        }
+        g <- survival::survfit(S~1)
+        mymain <- ifelse(!missing(main),main,v)    
+        with(g,graphics::plot(1-surv~time,type="s",main=mymain,xlab=xlab,ylab=ylab))
+        with(g,graphics::lines(1-upper~time,type="s",lty=2))
+        with(g,graphics::lines(1-lower~time,type="s",lty=2))
+        ro <- sort(r[,v]); 
+        graphics::lines(ro,stats::pnorm(ro),col="red",xlab=xlab,ylab=ylab)        
+    }
   invisible(x)
 }

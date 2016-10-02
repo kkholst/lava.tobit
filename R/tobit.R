@@ -5,19 +5,19 @@ tobit_method.lvm <- "nlminb1"
 
 ##' @export
 tobit_objective.lvm <- function(x,p,data,weight,indiv=FALSE,
-                                algorithm=lava.options()$tobitAlgorithm,
-                                seed=lava.options()$tobitseed,...) {
+                                algorithm=lava::lava.options()$tobitAlgorithm,
+                                seed=lava::lava.options()$tobitseed,...) {
   if (!is.null(seed)) {
-    if (!exists(".Random.seed")) runif(1)
+    if (!exists(".Random.seed")) stats::runif(1)
     save.seed <- .Random.seed
     set.seed(seed)
   }
   
-  require("mvtnorm")
-  zz <- manifest(x) 
+  requireNamespace("mvtnorm")
+  zz <- lava::manifest(x) 
   d <- as.matrix(rbind(data)[,zz,drop=FALSE]);
   colnames(d) <- zz  
-  yy <- endogenous(x)
+  yy <- lava::endogenous(x)
   yy.w <- intersect(yy,colnames(weight))
   yy.idx <- match(yy.w,zz)
   Status <- matrix(0,ncol=length(zz),nrow=nrow(d))
@@ -25,7 +25,7 @@ tobit_objective.lvm <- function(x,p,data,weight,indiv=FALSE,
   patterns <- unique(Status,MARGIN=1)
   cens.type <- apply(Status,1,
                      function(x) which(apply(patterns,1,function(y) identical(x,y))))  
-  mp <- modelVar(x,p,data=as.data.frame(d)) 
+  mp <- lava::modelVar(x,p,data=as.data.frame(d)) 
   Sigma <- mp$C ## Model specific covariance matrix
   xi <- mp$xi ## Model specific mean-vector
   val <- c()
@@ -46,10 +46,10 @@ tobit_objective.lvm <- function(x,p,data,weight,indiv=FALSE,
     val1 <- val0 <- 0;
     if (length(noncens.y)>0) {
       ## p(y), using: int[p(y,y*)]dy* =  p(y) int[p(y*|y)]dy*
-      val1 <- dmvnorm(d[idx,noncens.y,drop=FALSE], 
-                      mean=xi[noncens.idx],
-                      sigma=Sigma[noncens.idx,noncens.idx,drop=FALSE],
-                      log=TRUE)
+      val1 <- mvtnorm::dmvnorm(d[idx,noncens.y,drop=FALSE], 
+                              mean=xi[noncens.idx],
+                              sigma=Sigma[noncens.idx,noncens.idx,drop=FALSE],
+                              log=TRUE)
     }
 
     if (length(cens.idx)>0) {
@@ -62,16 +62,16 @@ tobit_objective.lvm <- function(x,p,data,weight,indiv=FALSE,
           ##lower=as.numeric(L%*%d[ii,cens.idx]),
         val0 <- sapply(idx,
                             function(ii)
-                            log(pmvnorm(lower=as.numeric(L%*%d[ii,cens.idx]),
-                                        mean=as.numeric(L%*%xi),
-                                        sigma=L%*%Sigma%*%L,algorithm=algorithm))
-                       )
+                                log(mvtnorm::pmvnorm(lower=as.numeric(L%*%d[ii,cens.idx]),
+                                                     mean=as.numeric(L%*%xi),
+                                                     sigma=L%*%Sigma%*%L,algorithm=algorithm))
+                      )
 
       } else {
          M <- mom.cens(x,p,data=y,cens.idx,conditional=TRUE,deriv=FALSE)
          val0 <- c()
          for (j in 1:length(idx)) {           
-           val0 <- c(val0,log(pmvnorm(lower=as.numeric(L%*%y[j,cens.idx]),mean=as.numeric(L%*%M$mu.censIobs[j,]),sigma=L%*%M$S.censIobs%*%L,algorithm=algorithm)) )
+           val0 <- c(val0,log(mvtnorm::pmvnorm(lower=as.numeric(L%*%y[j,cens.idx]),mean=as.numeric(L%*%M$mu.censIobs[j,]),sigma=L%*%M$S.censIobs%*%L,algorithm=algorithm)) )
          }        
         }
     }
@@ -91,18 +91,18 @@ tobit_objective.lvm <- function(x,p,data,weight,indiv=FALSE,
 
 ##' @export
 tobit_gradient.lvm <- function(x,p,data,weight,weight2=NULL,indiv=FALSE,
-                               algorithm=lava.options()$tobitAlgorithm,
-                               seed=lava.options()$tobitseed,...) {
+                               algorithm=lava::lava.options()$tobitAlgorithm,
+                               seed=lava::lava.options()$tobitseed,...) {
 
   if (!is.null(seed)) {
-    if (!exists(".Random.seed")) runif(1)
+    if (!exists(".Random.seed")) stats::runif(1)
     save.seed <- .Random.seed
     set.seed(seed)
   }
-  require("mvtnorm")
-  zz <- manifest(x)
+  requireNamespace("mvtnorm")
+  zz <- lava::manifest(x)
   d <- as.matrix(data[,zz,drop=FALSE]); colnames(d) <- zz
-  yy <- endogenous(x)
+  yy <- lava::endogenous(x)
   yy.w <- intersect(yy,colnames(weight))
   yy.idx <- match(yy.w,zz)
   Status <- matrix(0,ncol=length(zz),nrow=nrow(d))
@@ -191,7 +191,7 @@ tobit_logLik.lvm <- function(object,p,data,weight,...) {
   args <- list(...)
   args$object <- object; args$p <- p; args$data <- data; args$type <- "exo"; args$weight <- NULL
   ##xl <- lava:::gaussian_logLik.lvm(object,p=p,data=data,type="exo",weight=NULL,...)
-  res <- res - do.call(gaussian_logLik.lvm,args)
+  res <- res - do.call(lava::gaussian_logLik.lvm,args)
   return(res)
 }
 
@@ -277,7 +277,7 @@ cens.score <- function(x,p,data,cens.idx,cens.which.left,weight,...) {
     if (n==1) y. <- y1 else y. <- colMeans(y1)
     mu <- M$mu.obs
     S <- M$S.obs
-    iS <- Inverse(S)
+    iS <- lava::Inverse(S)
     dS <- M$dS.obs
     dmu <- M$dmu.obs
     S1 <- c()
@@ -311,15 +311,15 @@ cens.score <- function(x,p,data,cens.idx,cens.which.left,weight,...) {
 ###{{{ Derivatives of normal CDF
 
 ## Calculates first and second order partial derivatives of normal CDF
-Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitseed,
-                     algorithm=lava.options()$tobitAlgorithm,
-                     ...) {
+Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,
+             seed=lava::lava.options()$tobitseed,
+             algorithm=lava::lava.options()$tobitAlgorithm, ...) {
   k <- NROW(S)
   if (!is.null(seed) & k>1) {
-    if (!exists(".Random.seed")) runif(1)
+    if (!exists(".Random.seed")) stats::runif(1)
     save.seed <- .Random.seed
   }
-  require("mvtnorm")
+  requireNamespace("mvtnorm")
 
   if (!std) {
     L <- diag(S)^0.5
@@ -334,7 +334,7 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
   Y <- as.vector(Y)
   
   if (k==1) {
-    D <- dnorm(Y,sd=as.vector(S)^0.5)
+    D <- stats::dnorm(Y,sd=as.vector(S)^0.5)
     H <- -Y*D
     return(list(grad=D,hessian=H))
   }
@@ -345,13 +345,13 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
     Sj <- S[-j,-j,drop=FALSE] - tcrossprod(S[-j,j,drop=FALSE]) ##/S[j,j] S=correlation
     muj <- Y[-j] - S[-j,j,drop=FALSE]*Y[j]
                                         #    set.seed(seed)
-    D[j] <- dnorm(Y[j])*pmvnorm(upper=as.vector(muj),sigma=Sj,algorithm=algorithm)
+    D[j] <- stats::dnorm(Y[j])*mvtnorm::pmvnorm(upper=as.vector(muj),sigma=Sj,algorithm=algorithm)
   }
 
   
   H <- matrix(0,k,k) 
   if (k<3) {
-    H[1,2] <- H[2,1] <- dmvnorm(unlist(Y),sigma=S)
+    H[1,2] <- H[2,1] <- mvtnorm::dmvnorm(unlist(Y),sigma=S)
     diag(H) <- -Y*D -H[1,2]*S[1,2]
     ##as.vector((H*S)%*%rep(1,k))
   } else {
@@ -359,11 +359,11 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
     for (i in 1:(k-1)) {
       for (j in (i+1):k) {
         Snij <- S[-c(i,j),c(i,j),drop=FALSE]
-        B <- Snij%*%Inverse(S[c(i,j),c(i,j)])
+        B <- Snij%*%lava::Inverse(S[c(i,j),c(i,j)])
         Sij <- S[-c(i,j),-c(i,j),drop=FALSE] - B%*%t(Snij)
         muij <- Y[-c(i,j)] - B%*%Y[c(i,j)]
-        Phis[i,j] <- Phis[j,i] <- pmvnorm(upper=as.vector(muij),sigma=Sij,algorithm=algorithm)
-        phis[i,j] <- phis[j,i] <- dmvnorm(Y[c(i,j)],sigma=S[c(i,j),c(i,j)])
+        Phis[i,j] <- Phis[j,i] <- mvtnorm::pmvnorm(upper=as.vector(muij),sigma=Sij,algorithm=algorithm)
+        phis[i,j] <- phis[j,i] <- mvtnorm::dmvnorm(Y[c(i,j)],sigma=S[c(i,j),c(i,j)])
       }
     }
     H <- Phis*phis
@@ -372,7 +372,7 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
   if (!std) {
     if (!is.null(seed))
       .Random.seed <<- save.seed
-    a <- pmvnorm(upper=Y,mean=as.numeric(mu),sigma=S,algorithm=algorithm)
+    a <- mvtnorm::pmvnorm(upper=Y,mean=as.numeric(mu),sigma=S,algorithm=algorithm)
     return(list(grad=Li%*%D, hessian=Li%*%H%*%Li, R=S, CDF=a, S=S0, mu=mu, L=L, Li=Li))
   }
   if (!is.null(seed))
@@ -382,11 +382,12 @@ Dpmvnorm <- function(Y,S,mu=rep(0,NROW(S)),std=FALSE,seed=lava.options()$tobitse
 
 ## Calculates first and second order partial derivatives of normal CDF
 ## w.r.t. parameter-vector!
-Dthetapmvnorm <- function(yy,mu,S,dmu,dS,seed=lava.options()$tobitseed,
-                          algorithm=lava.options()$tobitAlgorithm, weight,
-                          ...) {
+Dthetapmvnorm <- function(yy,mu,S,dmu,dS,
+                  seed=lava::lava.options()$tobitseed,
+                  algorithm=lava::lava.options()$tobitAlgorithm, weight,
+                  ...) {
   if (!is.null(seed)) {
-    if (!exists(".Random.seed")) runif(1)
+    if (!exists(".Random.seed")) stats::runif(1)
     save.seed <- .Random.seed
   }
   ##yy <- as.matrix(yy)
@@ -394,7 +395,7 @@ Dthetapmvnorm <- function(yy,mu,S,dmu,dS,seed=lava.options()$tobitseed,
   ##  M <- moments(x,p)
   ##  mu <- M$xi
   ##  S <- M$C
-  iS <- Inverse(S)  
+  iS <- lava::Inverse(S)  
   ##  DCDF <- Dpmvnorm(y,S,mu)
   L <- diag(S)^0.5
   Li <- diag(1/L,NROW(S))
@@ -413,7 +414,7 @@ Dthetapmvnorm <- function(yy,mu,S,dmu,dS,seed=lava.options()$tobitseed,
   S0 <- function(y) {
     z <- Li%*%(y-mu)
 #    set.seed(seed)
-    a <- pmvnorm(upper=y,mean=as.numeric(mu),sigma=S,algorithm=algorithm)
+    a <- mvtnorm::pmvnorm(upper=y,mean=as.numeric(mu),sigma=S,algorithm=algorithm)
     DC <- Dpmvnorm(z,R,std=TRUE,algorithm=algorithm)
     MM <- -LR%*%(DC$grad)
     VV <- LR%*%(DC$hessian)%*%t(LR) + a*S
@@ -444,9 +445,9 @@ Dthetapmvnorm <- function(yy,mu,S,dmu,dS,seed=lava.options()$tobitseed,
 
 mom.cens <- function(x,p,cens.idx,data,deriv=TRUE,conditional=TRUE,right=TRUE,...) {
   obs.idx <- setdiff(1:NCOL(data),cens.idx)
-  M <- moments(x,p,data=as.data.frame(data))
+  M <- lava::moments(x,p,data=as.data.frame(data))
   if (deriv)
-    D <- deriv(x,p=p,mom=M,meanpar=TRUE) ##,mu=colMeans(data))
+    D <- stats::deriv(x,p=p,mom=M,meanpar=TRUE) ##,mu=colMeans(data))
 
   if (length(cens.idx)<1) {
     res <- list(S.obs=M$C, mu.obs=M$xi, S.cens=NULL, mu.cens=NULL,
@@ -473,7 +474,7 @@ mom.cens <- function(x,p,cens.idx,data,deriv=TRUE,conditional=TRUE,right=TRUE,..
   S.obscens <- M$C[obs.idx,cens.idx,drop=FALSE]
   mu.obs <- M$xi[obs.idx]
   mu.cens <- M$xi[cens.idx]
-  iS.obs <- Inverse(S.obs)
+  iS.obs <- lava::Inverse(S.obs)
 
   S01iS0 <- S.censobs%*%iS.obs
   S.cond <- S.cens - S01iS0%*%S.obscens

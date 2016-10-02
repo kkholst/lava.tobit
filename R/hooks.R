@@ -13,7 +13,7 @@ lava.tobit.sim.hook <- function(x,data,...) {
 }
 
 ##' @export
-lava.tobit.color.hook <- function(x,subset=vars(x),...) {
+lava.tobit.color.hook <- function(x,subset=lava::vars(x),...) {
   return(list(vars=intersect(subset,binary(x)),col="indianred1"))
 }
 
@@ -21,10 +21,10 @@ lava.tobit.color.hook <- function(x,subset=vars(x),...) {
 lava.tobit.estimate.hook <- function(x,data,weight,weight2,estimator,...) {
   dots <- list(...)
 ## Binary outcomes -> censored regression
-  bin <- intersect(binary(x),vars(x))
+  bin <- intersect(binary(x),lava::vars(x))
   if (is.null(dim(data))) return(NULL)
   if (estimator%in%c("gaussian","tobit","normal")) {
-    for (i in setdiff(endogenous(x),binary(x))) {
+    for (i in setdiff(lava::endogenous(x),binary(x))) {
       if (is.character(data[,i]) | is.factor(data[,i])) { # Transform binary 'factor'
         y <- as.factor(data[,i])
         if (nlevels(y)==2) {
@@ -37,7 +37,7 @@ lava.tobit.estimate.hook <- function(x,data,weight,weight2,estimator,...) {
       estimator <- "tobit"
       if (is.null(weight)) {        
         W <- data[,bin,drop=FALSE]; W[W==0] <- -1; colnames(W) <- bin
-        weight <- lava.options()$threshold*W
+        weight <- lava::lava.options()$threshold*W
       } else {
         ##        if (!all(binary(x)%in%colnames(data)))
         ##        W <- data[,binary(x),drop=FALSE]; W[W==0] <- -1; colnames(W) <- binary(x)
@@ -58,8 +58,8 @@ lava.tobit.estimate.hook <- function(x,data,weight,weight2,estimator,...) {
   ## Transform 'Surv' objects
   weight2 <- mynames <- NULL
   if (estimator%in%c("normal")) {
-    for (i in setdiff(endogenous(x),bin)) {
-      if (is.Surv(data[,i])) { 
+    for (i in setdiff(lava::endogenous(x),bin)) {
+      if (survival::is.Surv(data[,i])) { 
         S <- data[,i]
         y1 <- S[,1]
         if (attributes(S)$type=="left")  {
@@ -89,8 +89,8 @@ lava.tobit.estimate.hook <- function(x,data,weight,weight2,estimator,...) {
 
   W <- NULL
   if (estimator%in%c("gaussian","tobit","tobitw")) {
-    for (i in setdiff(endogenous(x),bin)) {
-      if (is.Surv(data[,i])) { 
+    for (i in setdiff(lava::endogenous(x),bin)) {
+      if (survival::is.Surv(data[,i])) { 
         estimator <- "tobit"
         S <- data[,i]
         y <- S[,1]
