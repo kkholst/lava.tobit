@@ -49,18 +49,24 @@ plotres <- function(x,var=lava::endogenous(x),
     requireNamespace("survival")
     r <- stats::residuals(x,std=TRUE)
     W <- lava::Weight(x)
+    W2 <- x$weight2
+    
     if (inherits(x,"multigroupfit")) {
         if (missing(k)) stop("Specify which group to assess.")
         r <- r[[k]]; W <- W[[k]]
     }
     
     for (v in var) {
-        if (v %in% (W)) {
-            S <- survival::Surv(ifelse(W[,v]==-1,NA,r[,v]),
-                     ifelse(W[,v]==1,NA,r[,v]),
-                     type="interval2")      
+        if (v %in% colnames(W2)) {            
+            S <- survival::Surv(r[,v],!is.infinite(W2[,v]))
         } else {
-            S <- survival::Surv(r[,v],rep(TRUE,length(r[,v])))
+            if (v %in% colnames(W)) {
+                S <- survival::Surv(ifelse(W[,v]==-1,NA,r[,v]),
+                                   ifelse(W[,v]==1,NA,r[,v]),
+                                   type="interval2")      
+            } else {
+                S <- survival::Surv(r[,v],rep(TRUE,length(r[,v])))
+            }
         }
         g <- survival::survfit(S~1)
         mymain <- ifelse(!missing(main),main,v)    
