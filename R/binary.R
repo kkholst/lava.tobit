@@ -28,7 +28,7 @@
 ##' @export
 "binary<-" <- function(x,...,value) UseMethod("binary<-")
 
-##' @export binary<- lvm
+##' @export
 "binary<-.lvm" <- function(x,...,value) {
   if (class(value)[1]=="formula") {
     return(binary(x,all.vars(value),...))
@@ -36,7 +36,7 @@
   binary(x, value, ...)
 }
 
-##' @export binary lvm
+##' @export
 `binary.lvm` <-
 function(x,var=NULL, ...) {
   if (is.null(var)) {
