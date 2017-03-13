@@ -4,6 +4,7 @@
 \name{lava.tobit}
 \alias{lava.tobit}
 \alias{lava.tobit-package}
+\alias{lava.tobit-package}
 \title{Estimation and simulation of probit and tobit latent variable models
  
 Framwork for estimating parameters and simulate data from Latent Variable
@@ -32,4 +33,3 @@ effects(e,y~x)
 Klaus K. Holst Maintainer: <kkho@biostat.ku.dk>
 }
 \keyword{package}
-

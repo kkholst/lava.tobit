@@ -1,8 +1,8 @@
 Package: lava.tobit
 Type: Package
 Title: LVM with censored and binary outcomes
-Version: 0.4.9
-Date: 2016-10-02
+Version: 0.5
+Date: 2017-03-13
 Author: Klaus K. Holst
 Maintainer: Klaus K. Holst <kkho@biostat.ku.dk>
 Description: lava plugin allowing combinations of left and right censored and
@@ -10,11 +10,10 @@ Description: lava plugin allowing combinations of left and right censored and
 Keywords: probit model, tobit model, structural equation mode
 URL: https://github.com/kkholst/lava.tobit
 Depends:
-    R (>= 2.18),
-    lava (>= 1.4),
+    lava (>= 1.4.7.3),
     mvtnorm,
     survival
 License: GPL-3
 LazyLoad: yes
 Roxygen: list(wrap = FALSE)
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

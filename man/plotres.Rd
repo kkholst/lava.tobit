@@ -58,4 +58,3 @@ par(mfrow=c(2,2)); plotres(e); plot(e)
 Klaus K. Holst
 }
 \keyword{models}
-

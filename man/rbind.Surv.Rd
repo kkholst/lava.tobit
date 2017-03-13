@@ -4,7 +4,7 @@
 \alias{rbind.Surv}
 \title{Appending \code{Surv} objects}
 \usage{
-rbind.Surv(...)
+\method{rbind}{Surv}(...)
 }
 \arguments{
 \item{...}{\code{Surv} objects}
@@ -32,4 +32,3 @@ rbind(S3,S3)
 Klaus K. Holst
 }
 \keyword{utilities}
-

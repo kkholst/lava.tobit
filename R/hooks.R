@@ -18,7 +18,7 @@ lava.tobit.color.hook <- function(x,subset=lava::vars(x),...) {
 }
 
 ##' @export
-lava.tobit.estimate.hook <- function(x,data,weight,weight2,estimator,...) {
+lava.tobit.estimate.hook <- function(x,data,weights,data2,estimator,...) {
   dots <- list(...)
 ## Binary outcomes -> censored regression
   bin <- intersect(binary(x),lava::vars(x))
@@ -35,28 +35,28 @@ lava.tobit.estimate.hook <- function(x,data,weight,weight2,estimator,...) {
     }
     if (length(bin)>0) {
       estimator <- "tobit"
-      if (is.null(weight)) {        
+      if (is.null(weights)) {        
         W <- data[,bin,drop=FALSE]; W[W==0] <- -1; colnames(W) <- bin
-        weight <- lava::lava.options()$threshold*W
+        weights <- lava::lava.options()$threshold*W
       } else {
         ##        if (!all(binary(x)%in%colnames(data)))
         ##        W <- data[,binary(x),drop=FALSE]; W[W==0] <- -1; colnames(W) <- binary(x)
-        ##        attributes(W)$weight2 <- weight
-        ##        weight <- W
-        ##          weight[,binary(x)] <- W
+        ##        attributes(W)$data2 <- weights
+        ##        weights <- W
+        ##          weights[,binary(x)] <- W
       }
       for (b in bin) {
         data[!is.na(data[,b]),b] <- 0
       }
       ##    data[,binary(x)] <- 0
-      if (!is.null(weight2)) {
+      if (!is.null(data2)) {
         estimator <- "tobitw"
       }
     }
   }
   
   ## Transform 'Surv' objects
-  weight2 <- mynames <- NULL
+  data2 <- mynames <- NULL
   if (estimator%in%c("normal")) {
     for (i in setdiff(lava::endogenous(x),bin)) {
       if (survival::is.Surv(data[,i])) { 
@@ -81,7 +81,7 @@ lava.tobit.estimate.hook <- function(x,data,weight,weight2,estimator,...) {
         mynames <- c(mynames,i)
         y2 <- cbind(y2)
         colnames(y2) <- i
-        weight2 <- cbind(weight2,y2)
+        data2 <- cbind(data2,y2)
         data[,i] <- y1
       }
     }
@@ -108,17 +108,17 @@ lava.tobit.estimate.hook <- function(x,data,weight,weight2,estimator,...) {
     }
     if (length(W)>0) {
       colnames(W) <- mynames
-      if (!is.null(weight)) {
-        wW <- intersect(colnames(weight),colnames(W))
+      if (!is.null(weights)) {
+        wW <- intersect(colnames(weights),colnames(W))
         if (length(wW)>0)
-          weight[,wW] <- W[,wW]
+          weights[,wW] <- W[,wW]
         Wo <- setdiff(colnames(W),wW)
         if (length(Wo)>0)
-        weight <- cbind(weight,W[,Wo,drop=FALSE])
+        weights <- cbind(weights,W[,Wo,drop=FALSE])
       } else {
-        weight <- W;
+        weights <- W;
       }
     }
   }
-  return(c(list(x=x,data=data,weight=weight,weight2=weight2,estimator=estimator),dots)) 
+  return(c(list(x=x,data=data,weights=weights,data2=data2,estimator=estimator),dots)) 
 }

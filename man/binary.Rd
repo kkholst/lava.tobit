@@ -2,8 +2,8 @@
 % Please edit documentation in R/binary.R
 \name{binary}
 \alias{binary}
-\alias{binary.lvm}
 \alias{binary<-}
+\alias{binary.lvm}
 \alias{binary<-.lvm}
 \title{Defines variables as binary}
 \usage{
@@ -13,11 +13,11 @@
 \arguments{
 \item{x}{\code{lvm}-object}
 
+\item{\dots}{Additional arguments parsed to lower-level functions}
+
 \item{var}{Formula or vector of variable names}
 
 \item{value}{Formula or vector of variable names}
-
-\item{\dots}{Additional arguments parsed to lower-level functions}
 }
 \value{
 \code{lvm}-object (or vector of variable names if called without any
@@ -40,4 +40,3 @@ Klaus K. Holst
 }
 \keyword{models}
 \keyword{regression}
-
