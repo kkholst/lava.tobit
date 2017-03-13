@@ -23,7 +23,7 @@ lava.tobit.estimate.hook <- function(x,data,weights,data2,estimator,...) {
 ## Binary outcomes -> censored regression
   bin <- intersect(binary(x),lava::vars(x))
   if (is.null(dim(data))) return(NULL)
-  if (estimator%in%c("gaussian","tobit","normal")) {
+  if (is.null(estimator) || estimator%in%c("gaussian","tobit","normal")) {
     for (i in setdiff(lava::endogenous(x),binary(x))) {
       if (is.character(data[,i]) | is.factor(data[,i])) { # Transform binary 'factor'
         y <- as.factor(data[,i])
@@ -57,7 +57,7 @@ lava.tobit.estimate.hook <- function(x,data,weights,data2,estimator,...) {
   
   ## Transform 'Surv' objects
   data2 <- mynames <- NULL
-  if (estimator%in%c("normal")) {
+  if (is.null(estimator) || estimator%in%c("normal")) {
     for (i in setdiff(lava::endogenous(x),bin)) {
       if (survival::is.Surv(data[,i])) { 
         S <- data[,i]
@@ -83,12 +83,13 @@ lava.tobit.estimate.hook <- function(x,data,weights,data2,estimator,...) {
         colnames(y2) <- i
         data2 <- cbind(data2,y2)
         data[,i] <- y1
+        estimator <- "normal"
       }
     }
   }
 
   W <- NULL
-  if (estimator%in%c("gaussian","tobit","tobitw")) {
+  if (length(estimator)>0 && estimator%in%c("gaussian","tobit","tobitw")) {
     for (i in setdiff(lava::endogenous(x),bin)) {
       if (survival::is.Surv(data[,i])) { 
         estimator <- "tobit"
