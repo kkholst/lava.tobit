@@ -87,6 +87,7 @@ lava.tobit.estimate.hook <- function(x,data,weights,data2,estimator,...) {
       }
     }
   }
+  if (is.null(estimator) && length(ordinal(x))>0) estimator <- "normal"
 
   W <- NULL
   if (length(estimator)>0 && estimator%in%c("gaussian","tobit","tobitw")) {
