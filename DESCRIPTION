@@ -1,13 +1,12 @@
 Package: lava.tobit
 Type: Package
-Title: LVM with censored and binary outcomes
+Title: LVM with Censored and Binary Outcomes
 Version: 0.5
 Date: 2017-03-13
 Author: Klaus K. Holst
 Maintainer: Klaus K. Holst <klaus@holst.it>
 Description: lava plugin allowing combinations of left and right censored and
     binary outcomes.
-Keywords: probit model, tobit model, structural equation mode
 URL: https://github.com/kkholst/lava.tobit
 Depends:
     lava (>= 1.4.7),
