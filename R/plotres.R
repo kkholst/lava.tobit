@@ -48,7 +48,7 @@ plotres <- function(x,var=lava::endogenous(x),
             ...) {
     requireNamespace("survival")
     r <- stats::residuals(x,std=TRUE)
-    W <- lava::Weights(x)
+    W <- x$weights ## lava::Weights(x)
     W2 <- x$data2
     
     if (inherits(x,"multigroupfit")) {
