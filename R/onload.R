@@ -1,5 +1,4 @@
 '.onLoad' <- function(lib, pkg="lava.tobit") {
-    lava::addhook("lava.tobit.estimate.hook","estimate.hooks")
     lava::addhook("lava.tobit.color.hook","color.hooks")
     lava::addhook("lava.tobit.sim.hook","sim.hooks")
     lava::addhook("lava.tobit.init.hook","init.hooks")

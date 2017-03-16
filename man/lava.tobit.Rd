@@ -24,7 +24,7 @@ d <- sim(m,200)
 ## Dichotomize y and introduce censoring on z
 d <- transform(d, y=as.factor(y>0), z=Surv(z,z<2))
 \donttest{
-e <- estimate(m,d,control=list(trace=1))
+e <- estimate(m,d,control=list(trace=1),estimator="gaussian")
 effects(e,y~x)
 }
 
