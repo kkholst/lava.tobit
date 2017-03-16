@@ -1,0 +1,60 @@
+#+HTML: <a href="https://travis-ci.org/kkholst/lava"><img src="https://travis-ci.org/kkholst/lava.tobit.svg?branch=master"></a>
+#+HTML: <a href="https://codecov.io/github/kkholst/lava?branch=master"><img src="https://codecov.io/github/kkholst/lava.tobit/coverage.svg?branch=master"></a>
+#+HTML: <a href="http://cran.rstudio.com/web/packages/lava/index.html"><img src="http://www.r-pkg.org/badges/version/lava.tobit"></a>
+#+HTML: <a href="http://cranlogs.r-pkg.org/downloads/total/last-month/lava"><img src="http://cranlogs.r-pkg.org/badges/lava.tobit"></a>
+
+Estimation and simulation of latent variable models
+
+** Installation
+#+BEGIN_SRC R :exports both :eval never
+install.packages("lava.tobit",dependencies=TRUE)
+library("lava.tobit")
+#+END_SRC
+
+The development version may be installed directly from =github=:
+#+BEGIN_SRC R :exports both :eval never
+devtools::install_github("kkholst/lava.tobit")
+#+END_SRC
+
+** Citation
+
+To cite that =lava.tobit= package please use the following reference
+
+#+BEGIN_QUOTE
+  Klaus K. Holst and Esben Budtz-Joergensen (2013). 
+  Linear Latent Variable Models: The lava-package. 
+  Computational Statistics 28 (4), pp 1385-1453. 
+  http://dx.doi.org/10.1007/s00180-012-0344-y
+#+END_QUOTE
+
+#+BEGIN_SRC bibtex
+  @Article{lava,
+    title = {Linear Latent Variable Models: The lava-package},
+    author = {Klaus K. Holst and Esben Budtz-Joergensen},
+    year = {2013},
+    volume = {28},
+    number = {4},
+    pages = {1385-1452},
+    journal = {Computational Statistics},
+    note = {http://dx.doi.org/10.1007/s00180-012-0344-y},
+  }
+#+END_SRC bibtex
+
+** Examples
+
+* COMMENT Setup
+
+#+TITLE: Latent Variable Models with Ordinal and Censored Outcomes (=lava.tobit=)
+#+AUTHOR: Klaus K. Holst
+#+PROPERTY: header-args:R  :session *R* :cache no :width 550 :height 450
+#+PROPERTY: header-args  :eval never-export :exports results :results output :tangle yes :comments yes 
+#+PROPERTY: header-args:R+ :colnames yes :rownames no :hlines yes
+#+OPTIONS: timestamp:t title:t date:t author:t creator:nil toc:nil 
+#+OPTIONS: h:4 num:t tags:nil d:t
+#+PROPERTY: comments yes 
+#+STARTUP: hideall 
+#+OPTIONS: toc:t h:4 num:nil tags:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://www.biostat.ku.dk/~kkho/styles/orgmode2.css"/>
+#+HTML_HEAD: <link rel="icon" type="image/x-icon" href="http://www.biostat.ku.dk/~kkho/styles/logo.ico"/>
+#+HTML_HEAD: <style type="text/css">body { background-image: url(http://www.biostat.ku.dk/~kkho/styles/logo.png); }</style>
+
