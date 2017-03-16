@@ -6,6 +6,7 @@
 Estimation and simulation of latent variable models
 
 ** Installation
+
 #+BEGIN_SRC R :exports both :eval never
 install.packages("lava.tobit",dependencies=TRUE)
 library("lava.tobit")
@@ -50,7 +51,7 @@ library(lava.tobit)
 
 Simulate 200 observation from path analysis model
 with all slopes and residual variances set to 1 and intercepts 0:
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both
 m <- lvm(list(c(y,z) ~ x, y~z))
 d <- sim(m,200,seed=1)
 ## Dichotomize y and introduce censoring on z
@@ -59,7 +60,7 @@ d <- transform(d, y=as.factor(y>0), z=Surv(z,z<2))
 
 #+RESULTS:
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both
 e <- estimate(m,d)
 ## e <- estimate(m,d,control=list(trace=1), estimator="gaussian")
 effects(e,y~x)
@@ -82,8 +83,7 @@ Indirect effects:
 
 *** Latent variable model / random intercept model
 
-#+BEGIN_SRC R
-
+#+BEGIN_SRC R :exports both
 ## Simulate some data
 m0 <- lvm(y1+y2+y3~1*u+x)
 ordinal(m0,K=3) <- ~y1+y2+y3
@@ -114,7 +114,7 @@ Residual Variances:
    f                 1.75168    0.85709 2.04375
 #+end_example
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
 ## Constrained model: same covariate effect and thresholds
 ## (i.e., same marginals for all responses)
 m2 <- lvm(y1+y2+y3 ~ b*x+1*f[0], latent=~f)
@@ -133,37 +133,24 @@ coef(e2)
 :      y1~x      f~~f    y1:0|1    y1:1|2 
 :  1.355706  1.521861 -1.020310 -1.138375
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
 ## MLE (slower)
-ee <- estimate(m2,d,control=list(trace=1))
+ee <- estimate(m2,d)
 ee
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-  0:     152.48972:  0.00000 0.900000 -1.00000 -1.00000
-  1:     125.11364: 0.838311 0.951491 -1.50005 -1.21104
-  2:     122.48333:  1.20411  1.49450 -0.747870 -1.13641
-  3:     121.14609:  1.48884  1.61118 -0.965722 -0.995068
-  4:     120.92078:  1.37356  1.63185 -1.01495 -1.14783
-  5:     120.91129:  1.34023  1.60124 -1.02246 -1.11638
-  6:     120.90074:  1.33033  1.48757 -0.986347 -1.13697
-  7:     120.89389:  1.31582  1.47588 -1.00896 -1.14631
-  8:     120.89385:  1.31489  1.47451 -1.01021 -1.14412
-  9:     120.89385:  1.31477  1.47472 -1.01020 -1.14429
- 10:     120.89385:  1.31481  1.47471 -1.01018 -1.14428
-                       Estimate Std. Error  Z-value   P-value
-Regressions:                                                 
-   y1~x                 1.31481    0.32268  4.07470 4.607e-05
-Additional Parameters:                                       
-   y1:0|1              -1.01018    0.27343 -3.69446 0.0002204
-   y1:1|2              -1.14428    0.30061 -3.80659 0.0001409
-Residual Variances:                                          
-   f                    1.47471    0.72600  2.03129
-#+end_example
+:                        Estimate Std. Error  Z-value   P-value
+: Regressions:                                                 
+:    y1~x                 1.31481    0.32268  4.07470 4.607e-05
+: Additional Parameters:                                       
+:    y1:0|1              -1.01018    0.27343 -3.69446 0.0002204
+:    y1:1|2              -1.14428    0.30061 -3.80659 0.0001409
+: Residual Variances:                                          
+:    f                    1.47471    0.72600  2.03129
 
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
 m <- lvm(y1+y2~x+1*u,latent=~u)
 ordinal(m,K=2) <- ~y1+y2
 d <- sim(m,200,seed=1,latent=FALSE)
@@ -174,7 +161,7 @@ e2 <- estimate(m,d,estimator="gaussian") ## lava.tobit
 
 #+RESULTS:
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
 e1
 #+END_SRC
 
@@ -189,7 +176,7 @@ e1
 : Residual Variances:                                       
 :    u                 1.33837    0.50885  2.63017
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
 e2
 #+END_SRC
 
@@ -205,7 +192,7 @@ e2
 :    u                 1.33837    0.51442  2.60169
 
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
 summary(glm(y1~x,data=d,family=binomial(probit)))
 #+END_SRC
 
@@ -236,7 +223,7 @@ Number of Fisher Scoring iterations: 4
 #+end_example
 
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
 m2 <- lvm(y1+y2~x+1*u,latent=~u)
 binary(m2) <- ~y1+y2
 b1 <- estimate(m2,d)
@@ -259,7 +246,7 @@ Residual Variances:
 #+end_example
 
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
   suppressPackageStartupMessages(library(mets))
   dd <- mets::fast.reshape(d)
   b <- biprobit(y~x,id="id",data=dd,eqmarg=FALSE)
@@ -277,7 +264,7 @@ Residual Variances:
 : 'log Lik.' -222.9885 (df=5)
 
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
 estimate(b1, function(x) x[5]/(1+x[5]))
 #+END_SRC
 
@@ -286,7 +273,7 @@ estimate(b1, function(x) x[5]/(1+x[5]))
 : u~~u    0.572  0.0923 0.391 0.753 5.61e-10
 
 
-#+BEGIN_SRC R
+#+BEGIN_SRC R :exports both 
 summary(b)
 #+END_SRC
 
@@ -326,7 +313,7 @@ P(Y2=1)                  0.74572  0.67617  0.80464
 #+TITLE: Latent Variable Models with Ordinal and Censored Outcomes (=lava.tobit=)
 #+AUTHOR: Klaus K. Holst
 #+PROPERTY: header-args:R  :session *R* :cache no :width 550 :height 450
-#+PROPERTY: header-args  :eval never-export :exports results :results output :tangle yes :comments yes 
+#+PROPERTY: header-args  :eval never-export :exports both :results output :tangle yes :comments yes 
 #+PROPERTY: header-args:R+ :colnames yes :rownames no :hlines yes
 #+OPTIONS: timestamp:t title:t date:t author:t creator:nil toc:nil 
 #+OPTIONS: h:4 num:t tags:nil d:t
