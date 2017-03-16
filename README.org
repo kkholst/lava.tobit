@@ -42,6 +42,283 @@ To cite that =lava.tobit= package please use the following reference
 
 ** Examples
 
+#+BEGIN_SRC R
+library(lava.tobit)
+#+END_SRC
+
+*** Path analysis
+
+Simulate 200 observation from path analysis model
+with all slopes and residual variances set to 1 and intercepts 0:
+#+BEGIN_SRC R
+m <- lvm(list(c(y,z) ~ x, y~z))
+d <- sim(m,200,seed=1)
+## Dichotomize y and introduce censoring on z
+d <- transform(d, y=as.factor(y>0), z=Surv(z,z<2))
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC R
+e <- estimate(m,d)
+## e <- estimate(m,d,control=list(trace=1), estimator="gaussian")
+effects(e,y~x)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+
+Total effect of 'x' on 'y':
+		2.379138 (Approx. Std.Err = 0.3350672)
+Direct effect of 'x' on 'y':
+		1.140602 (Approx. Std.Err = 0.2338276)
+Total indirect effect of 'x' on 'y':
+		1.238535 (Approx. Std.Err = 0.2320567)
+Indirect effects:
+	Effect of 'x' via x->z->y:
+		1.238535 (Approx. Std.Err = 0.2320567)
+#+end_example
+
+
+*** Latent variable model / random intercept model
+
+#+BEGIN_SRC R
+
+## Simulate some data
+m0 <- lvm(y1+y2+y3~1*u+x)
+ordinal(m0,K=3) <- ~y1+y2+y3
+categorical(m0,K=3) <- ~x
+d <- sim(m0,100,seed=1)
+
+## Estimate model with random intercept
+## different effect of x on each response
+m1 <- lvm(y1+y2+y3 ~ x+1*f[0], latent=~f)
+ordinal(m1,K=3) <- ~y1+y2+y3
+e1 <- complik(m1,d,type="all")
+coef(e1)
+e1
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+      y1~x       y2~x       f~~f     y1:0|1     y1:1|2     y2:0|1     y2:1|2 
+ 1.6335518  2.4261513  1.7516836 -1.1029772 -2.2053195 -0.8765220 -0.8668624 
+      y3~x     y3:0|1     y3:1|2 
+ 1.0174457 -1.1327643 -0.8069362
+                    Estimate Std. Error Z value Pr(>|z|)
+Regressions:                                            
+   y1~x              1.63355    0.53478 3.05462 0.002253
+    y2~x             2.42615    0.80170 3.02627 0.002476
+   y3~x              1.01745    0.40661 2.50228  0.01234
+Residual Variances:                                     
+   f                 1.75168    0.85709 2.04375
+#+end_example
+
+#+BEGIN_SRC R
+## Constrained model: same covariate effect and thresholds
+## (i.e., same marginals for all responses)
+m2 <- lvm(y1+y2+y3 ~ b*x+1*f[0], latent=~f)
+ordinal(m2,K=3,c("t1","t2")) <- ~y1+y2+y3
+e2 <- complik(m2,d,type="all")
+e2
+coef(e2)
+#+END_SRC
+
+#+RESULTS:
+:                     Estimate Std. Error Z value  Pr(>|z|)
+: Regressions:                                             
+:    y1~x              1.35571    0.38172 3.55158 0.0003829
+: Residual Variances:                                      
+:    f                 1.52186    0.74126 2.05308
+:      y1~x      f~~f    y1:0|1    y1:1|2 
+:  1.355706  1.521861 -1.020310 -1.138375
+
+#+BEGIN_SRC R
+## MLE (slower)
+ee <- estimate(m2,d,control=list(trace=1))
+ee
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+  0:     152.48972:  0.00000 0.900000 -1.00000 -1.00000
+  1:     125.11364: 0.838311 0.951491 -1.50005 -1.21104
+  2:     122.48333:  1.20411  1.49450 -0.747870 -1.13641
+  3:     121.14609:  1.48884  1.61118 -0.965722 -0.995068
+  4:     120.92078:  1.37356  1.63185 -1.01495 -1.14783
+  5:     120.91129:  1.34023  1.60124 -1.02246 -1.11638
+  6:     120.90074:  1.33033  1.48757 -0.986347 -1.13697
+  7:     120.89389:  1.31582  1.47588 -1.00896 -1.14631
+  8:     120.89385:  1.31489  1.47451 -1.01021 -1.14412
+  9:     120.89385:  1.31477  1.47472 -1.01020 -1.14429
+ 10:     120.89385:  1.31481  1.47471 -1.01018 -1.14428
+                       Estimate Std. Error  Z-value   P-value
+Regressions:                                                 
+   y1~x                 1.31481    0.32268  4.07470 4.607e-05
+Additional Parameters:                                       
+   y1:0|1              -1.01018    0.27343 -3.69446 0.0002204
+   y1:1|2              -1.14428    0.30061 -3.80659 0.0001409
+Residual Variances:                                          
+   f                    1.47471    0.72600  2.03129
+#+end_example
+
+
+#+BEGIN_SRC R
+m <- lvm(y1+y2~x+1*u,latent=~u)
+ordinal(m,K=2) <- ~y1+y2
+d <- sim(m,200,seed=1,latent=FALSE)
+
+e1 <- estimate(m,d) ## mets
+e2 <- estimate(m,d,estimator="gaussian") ## lava.tobit
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC R
+e1
+#+END_SRC
+
+#+RESULTS:
+:                     Estimate Std. Error  Z-value   P-value
+: Regressions:                                              
+:    y1~x              1.01089    0.19029  5.31239 1.082e-07
+:     y2~x             0.83736    0.17367  4.82154 1.425e-06
+: Intercepts:                                               
+:    y2                0.05551    0.16351  0.33952    0.7342
+:    u                -0.02070    0.14676 -0.14102    0.8879
+: Residual Variances:                                       
+:    u                 1.33837    0.50885  2.63017
+
+#+BEGIN_SRC R
+e2
+#+END_SRC
+
+#+RESULTS:
+:                     Estimate Std. Error  Z-value   P-value
+: Regressions:                                              
+:    y1~x              1.01089    0.19215  5.26108 1.432e-07
+:     y2~x             0.83736    0.16955  4.93876 7.862e-07
+: Intercepts:                                               
+:    y2                0.05551    0.16691  0.33261    0.7394
+:    u                -0.02070    0.14816 -0.13969    0.8889
+: Residual Variances:                                       
+:    u                 1.33837    0.51442  2.60169
+
+
+#+BEGIN_SRC R
+summary(glm(y1~x,data=d,family=binomial(probit)))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+
+Call:
+glm(formula = y1 ~ x, family = binomial(probit), data = d)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.9331  -0.9766  -0.3825   0.9594   2.4005  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -0.02287    0.09610  -0.238    0.812    
+x            0.67151    0.10742   6.251 4.07e-10 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 276.94  on 199  degrees of freedom
+Residual deviance: 229.26  on 198  degrees of freedom
+AIC: 233.26
+
+Number of Fisher Scoring iterations: 4
+#+end_example
+
+
+#+BEGIN_SRC R
+m2 <- lvm(y1+y2~x+1*u,latent=~u)
+binary(m2) <- ~y1+y2
+b1 <- estimate(m2,d)
+b1
+logLik(b1)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+                    Estimate Std. Error  Z-value   P-value
+Regressions:                                              
+   y1~x              1.01089    0.19029  5.31239 1.082e-07
+    y2~x             0.83736    0.17367  4.82154 1.425e-06
+Intercepts:                                               
+   y2                0.05551    0.16351  0.33952    0.7342
+   u                -0.02070    0.14676 -0.14102    0.8879
+Residual Variances:                                       
+   u                 1.33837    0.50885  2.63017
+'log Lik.' -222.9885 (df=5)
+#+end_example
+
+
+#+BEGIN_SRC R
+  suppressPackageStartupMessages(library(mets))
+  dd <- mets::fast.reshape(d)
+  b <- biprobit(y~x,id="id",data=dd,eqmarg=FALSE)
+  b
+  logLik(b)
+#+END_SRC
+
+#+RESULTS:
+:                Estimate   Std.Err         Z p-value
+: (Intercept).1 -0.013533  0.095376 -0.141896  0.8872
+: x.1            0.661071  0.102494  6.449862  0.0000
+: (Intercept).2  0.022765  0.093054  0.244641  0.8067
+: x.2            0.547587  0.101500  5.394935  0.0000
+: r:(Intercept)  0.651017  0.137217  4.744423  0.0000
+: 'log Lik.' -222.9885 (df=5)
+
+
+#+BEGIN_SRC R
+estimate(b1, function(x) x[5]/(1+x[5]))
+#+END_SRC
+
+#+RESULTS:
+:      Estimate Std.Err  2.5% 97.5%  P-value
+: u~~u    0.572  0.0923 0.391 0.753 5.61e-10
+
+
+#+BEGIN_SRC R
+summary(b)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+
+               Estimate   Std.Err         Z p-value
+(Intercept).1 -0.013533  0.095376 -0.141896  0.8872
+x.1            0.661071  0.102494  6.449862  0.0000
+(Intercept).2  0.022765  0.093054  0.244641  0.8067
+x.2            0.547587  0.101500  5.394935  0.0000
+r:(Intercept)  0.651017  0.137217  4.744423  0.0000
+
+logLik: -222.9885  mean(score^2): 9.719e-08 
+    n pairs 
+  400   200 
+
+Contrast:
+	Mean 1        [(Intercept).1] 
+	Mean 2        [x.1] 
+
+                        Estimate 2.5%     97.5%   
+OR                       5.94712  2.75783 12.82466
+Tetrachoric correlation  0.57235  0.36451  0.72588
+                                                  
+P(Y1=1,Y2=1)             0.44413  0.37858  0.51169
+P(Y1=1,Y2=0)             0.05047  0.02457  0.10084
+P(Y1=0,Y2=1)             0.30159  0.23003  0.38429
+P(Y1=0,Y2=0)             0.20381  0.15539  0.26263
+P(Y1=1)                  0.49460  0.42070  0.56874
+P(Y2=1)                  0.74572  0.67617  0.80464
+#+end_example
 
 
 * COMMENT Setup
