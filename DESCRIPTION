@@ -2,14 +2,14 @@ Package: lava.tobit
 Type: Package
 Title: Latent Variable Models with Censored and Binary Outcomes
 Version: 0.5
-Date: 2017-03-13
+Date: 2017-03-16
 Author: Klaus K. Holst
 Maintainer: Klaus K. Holst <klaus@holst.it>
 Description: Lava plugin allowing combinations of left and right censored and
     binary outcomes.
 URL: https://github.com/kkholst/lava.tobit
 Depends:
-    lava (>= 1.4.7),
+    lava (>= 1.4.8),
     mvtnorm,
     survival
 License: GPL-3

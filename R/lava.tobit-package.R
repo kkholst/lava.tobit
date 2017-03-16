@@ -15,11 +15,12 @@
 ##' @import lava mvtnorm survival
 ##' @keywords package
 ##' @examples
-##'
+##' 
+##' library(lava.tobit)
 ##' m <- lvm(list(c(y,z) ~ x, y~z))
 ##' ## Simulate 200 observation from path analysis model
 ##' ## with all slopes and residual variances set to 1 and intercepts 0:
-##' d <- sim(m,200)
+##' d <- sim(m,200,seed=1)
 ##' ## Dichotomize y and introduce censoring on z
 ##' d <- transform(d, y=as.factor(y>0), z=Surv(z,z<2))
 ##' \donttest{
