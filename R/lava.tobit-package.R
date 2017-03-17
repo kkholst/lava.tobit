@@ -12,7 +12,7 @@
 ##' @aliases lava.tobit lava.tobit-package
 ##' @docType package
 ##' @author Klaus K. Holst Maintainer: <kkho@@biostat.ku.dk>
-##' @import lava mvtnorm survival
+##' @import lava mets mvtnorm survival
 ##' @keywords package
 ##' @examples
 ##' 
