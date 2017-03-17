@@ -55,7 +55,7 @@ with all slopes and residual variances set to 1 and intercepts 0:
 m <- lvm(list(c(y,z) ~ x, y~z))
 d <- sim(m,200,seed=1)
 ## Dichotomize y and introduce censoring on z
-d <- transform(d, y=as.factor(y>0), z=Surv(z,z<2))
+d <- transform(d, y=as.factor(y>0), z=Surv(pmin(z,2),z<2))
 #+END_SRC
 
 #+RESULTS:
@@ -70,14 +70,14 @@ effects(e,y~x)
 #+begin_example
 
 Total effect of 'x' on 'y':
-		2.379138 (Approx. Std.Err = 0.3350672)
+		2.264055 (Approx. Std.Err = 0.3206877)
 Direct effect of 'x' on 'y':
-		1.140602 (Approx. Std.Err = 0.2338276)
+		1.140617 (Approx. Std.Err = 0.2338337)
 Total indirect effect of 'x' on 'y':
-		1.238535 (Approx. Std.Err = 0.2320567)
+		1.123438 (Approx. Std.Err = 0.2115933)
 Indirect effects:
 	Effect of 'x' via x->z->y:
-		1.238535 (Approx. Std.Err = 0.2320567)
+		1.123438 (Approx. Std.Err = 0.2115933)
 #+end_example
 
 
