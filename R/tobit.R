@@ -63,7 +63,7 @@ tobit_objective.lvm <- function(x,p,data,weights,indiv=FALSE,
         val0 <- sapply(idx,
                             function(ii)
                                 log(mvtnorm::pmvnorm(lower=as.numeric(L%*%d[ii,cens.idx]),
-                                                     mean=as.numeric(L%*%xi),
+                                                     mean=as.numeric(L%*%as.vector(xi)),
                                                      sigma=L%*%Sigma%*%L,algorithm=algorithm))
                       )
 

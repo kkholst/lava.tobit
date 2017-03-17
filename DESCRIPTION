@@ -10,7 +10,7 @@ Description: Lava plugin allowing combinations of left and right censored and
 URL: https://github.com/kkholst/lava.tobit
 Depends:
     lava (>= 1.4.8),
-    mets (>= 1.2.1),
+    mets (>= 1.2.2),
     mvtnorm,
     survival
 License: GPL-3
