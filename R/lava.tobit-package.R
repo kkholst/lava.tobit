@@ -1,21 +1,21 @@
 ##' Estimation and simulation of probit and tobit latent variable models
-##'  
+##'
 ##' Framwork for estimating parameters and simulate data from Latent Variable
 ##' Models with binary and censored observations. Plugin for the \code{lava}
 ##' package
-##' 
+##'
 ##' \tabular{ll}{ Package: \tab lava.tobit \cr Type: \tab Package \cr Version:
 ##' \tab 0.4-5 \cr Date: \tab 2012-03-15 \cr License: \tab GPL-3 \cr LazyLoad:
 ##' \tab yes \cr }
-##' 
+##'
 ##' @name lava.tobit
 ##' @aliases lava.tobit lava.tobit-package
 ##' @docType package
 ##' @author Klaus K. Holst Maintainer: <kkho@@biostat.ku.dk>
-##' @import lava mets mvtnorm survival
+##' @import lava mvtnorm survival
 ##' @keywords package
 ##' @examples
-##' 
+##'
 ##' library(lava.tobit)
 ##' m <- lvm(list(c(y,z) ~ x, y~z))
 ##' ## Simulate 200 observation from path analysis model
@@ -27,7 +27,7 @@
 ##' e <- estimate(m,d,control=list(trace=1),estimator="gaussian")
 ##' effects(e,y~x)
 ##' }
-##' 
+##'
 NULL
 
 ##' For internal use

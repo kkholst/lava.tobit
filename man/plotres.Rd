@@ -4,9 +4,15 @@
 \alias{plotres}
 \title{Plot distribution of standardized residuals}
 \usage{
-plotres(x, var = lava::endogenous(x),
+plotres(
+  x,
+  var = lava::endogenous(x),
   ylab = "Cumulative Distribution Function",
-  xlab = "Standardized residuals", main, k, ...)
+  xlab = "Standardized residuals",
+  main,
+  k,
+  ...
+)
 }
 \arguments{
 \item{x}{Model, \code{lvmfit} object}

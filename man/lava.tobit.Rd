@@ -4,13 +4,13 @@
 \name{lava.tobit}
 \alias{lava.tobit}
 \alias{lava.tobit-package}
-\alias{lava.tobit-package}
-\title{Estimation and simulation of probit and tobit latent variable models
- 
+\title{Estimation and simulation of probit and tobit latent variable models}
+\description{
 Framwork for estimating parameters and simulate data from Latent Variable
 Models with binary and censored observations. Plugin for the \code{lava}
-package}
-\description{
+package
+}
+\details{
 \tabular{ll}{ Package: \tab lava.tobit \cr Type: \tab Package \cr Version:
 \tab 0.4-5 \cr Date: \tab 2012-03-15 \cr License: \tab GPL-3 \cr LazyLoad:
 \tab yes \cr }

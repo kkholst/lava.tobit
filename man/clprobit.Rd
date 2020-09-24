@@ -4,8 +4,15 @@
 \alias{clprobit}
 \title{Composite Likelihood for probit latent variable models}
 \usage{
-clprobit(x, data, k = 2, type = c("nearest", "all"), pairlist,
-  silent = TRUE, ...)
+clprobit(
+  x,
+  data,
+  k = 2,
+  type = c("nearest", "all"),
+  pairlist,
+  silent = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{\code{lvm}-object}
