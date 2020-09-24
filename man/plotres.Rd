@@ -53,10 +53,11 @@ d$y1 <- with(d, pmin(y01,cens1))
 ## Estimate model parameters
 d$S1 <- with(d, Surv(y1,status1))
 m <- lvm(c(S1,y2)~x); covariance(m) <- S1~y2
-e <- estimate(m,d,control=list(trace=1))
-
-## Plot cumulative distribution functions
-par(mfrow=c(2,2)); plotres(e); plot(e)
+## if (requireNamespace("mets", quietly=TRUE)) {
+##  e <- estimate(m,d,control=list(trace=1))##'
+##  ## Plot cumulative distribution functions
+##  par(mfrow=c(2,2)); plotres(e); plot(e)
+## }
 }
 
 }
